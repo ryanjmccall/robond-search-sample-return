@@ -39,7 +39,7 @@ Please see the sections below for the project writeup.
 
 ### Notebook Analysis
 #### 1. Run the functions provided in the notebook on test images (first with the test data provided, next on data you have recorded). Add/modify functions to allow for color selection of obstacles and rock samples.
-In the Jupyter Notebook 'Rover_Project_Test_Notebook' I ran the first several functions to view the image data I had recorded from the 'roversim' 
+In the Jupyter Notebook `Rover_Project_Test_Notebook` I ran the first several functions to view the image data I had recorded from the 'roversim' 
 simulator. Here is an example recorded image:
 
 
@@ -76,7 +76,7 @@ Below is the result of applying the rock threshold to the previous image:
 
 #### 1. Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
 
-I completed the 'process_image()' function by chaining together the perspective transform and color threshold with a function 
+I completed the `process_image()` function by chaining together the perspective transform and color threshold with a function 
 to convert thresholded image pixels to rover-centric coordinates. With this, I then converted the pixel position to world-map coordinates.
 For obstacles I incremented the worldmap channel 0 by 1, and, for navigable terrain, channel 2 by 10. I generated a 
 video of recorded images that were processed by this function.
@@ -169,4 +169,4 @@ retrieval. Currently, the rover will only approach rocks by chance. If I wanted 
 about how to add decision tree cases that move the robot toward the rock samples without hampering previously mentioned 
 performance measures.
 
-Please see output/roversim_recording.mp4 for a recording of the rover meeting the basic objectives.
+Please see `output/roversim_recording.mp4` for a recording of the rover meeting the basic objectives.
