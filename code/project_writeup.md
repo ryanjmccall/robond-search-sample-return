@@ -170,3 +170,8 @@ about how to add decision tree cases that move the robot toward the rock samples
 performance measures.
 
 Please see `output/roversim_recording.mp4` for a recording of the rover meeting the basic objectives.
+
+#### Attribution
+While developing this project I drew upon ideas presented in the `Rover Project Walkthrough Stereo` video. In particular
+ I used the image mask technique for obstacle mapping and the rock filtering threshold values described therein.
+
