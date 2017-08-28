@@ -68,7 +68,11 @@ Specifically, the red channel must be greater than 110, green greater than 110, 
 ![sample rock][image4]
 
 
-![rock threshold applied][image 5]
+Below is the result of applying the rock threshold to the previous image:
+
+
+![rock threshold applied][image5]
+
 
 #### 1. Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
 
@@ -164,3 +168,5 @@ algorithm was sufficient for the task, while the decision algorithm could add so
 retrieval. Currently, the rover will only approach rocks by chance. If I wanted to improve the rover I would think 
 about how to add decision tree cases that move the robot toward the rock samples without hampering previously mentioned 
 performance measures.
+
+Please see output/roversim_recording.mp4 for a recording of the rover meeting the basic objectives.
