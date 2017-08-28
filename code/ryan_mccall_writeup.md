@@ -42,11 +42,13 @@ Please see the sections below for the project writeup.
 In the Jupyter Notebook 'Rover_Project_Test_Notebook' I ran the first several functions to view the image data I had recorded from the 'roversim' 
 simulator. Here is an example recorded image:
 
+
 ![sample recorded image][image1]
 
 
 Next I defined the source and destination points in the image space for the perspective transform and applied the transformation.
 Here is the same image as before transformed into top-down coordinates:
+
 
 ![transformed image][image2]
 
@@ -55,12 +57,16 @@ To identify the pixels that are navigable, I applied an RGB color threshold func
 threshold: (160, 160, 160). The function outputs a binary image with 1 (rendered as white) representing the navigable terrain and 0 (as black)
 representing obstacles or out of sight bounds.
 
+
 ![transformed-thresholded image][image3]
+
 
 To identify rock samples, I defined a similar RGB threshold function to filter yellow pixels to "true" / 1 and others to "false" / 0. 
 Specifically, the red channel must be greater than 110, green greater than 110, and blue less than 50.
 
+
 ![sample rock][image4]
+
 
 ![rock threshold applied][image 5]
 
