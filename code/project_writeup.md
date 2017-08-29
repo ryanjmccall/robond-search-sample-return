@@ -2,7 +2,6 @@
 
 ---
 
-
 **The goals / steps of this project are the following:**  
 
 **Training / Calibration**  
@@ -101,77 +100,37 @@ previously described rock-threshold function, I obtained a binary map of rock sa
 transform them to rover coordinates, then to world coordinate, then to polar coordinates. Next I select the pixel that is closest
 in polar distance and mark the corresponding pixel in world coordinates as white.
 
-For the `decision_step()` function I made several alterations to achieve desirable performance. Broadly, I kept the general
-format of the provided decision tree. However I tried to address the following problems I noticed with the default code:
-1) using the mean polar angle of navigable pixels does not work when there are obstacles immediately ahead. For instances,
-there can be many navigable pixels to the left and right, but if the rover goes straight, it will get stuck on rocks.
-To remedy this, when I have vision data, I always compute the mean steer angle by:
+For the `decision_step()` function I made one change to the decision tree. I added a case to slowly approach a rock in 'stop'
+mode. In this case we perform the following: 
 
-`idealSteerAngle = np.mean(Rover.nav_angles * 180 / np.pi)`
+```
+Rover.throttle = 0.1
+Rover.brake = 0
+Rover.steer = np.clip(np.mean(Rover.rock_angles * 180 / np.pi), -15, 15)
+```
 
-However, I only make actions based on that angle when its absolute value is reasonably small. For this implementation I used 
-the parameter:
+Initially the rover was not able to avoid dead-ends and turn from boundaries very well, so I made some parameter adjustments to make
+it more sensitive and repsonsive to boundaries / walls. Here are the specific changes:
 
-`forwardAngleThreshold = 10`
-
-to only go forward when the absolute value of the mean steer angle was 10 or less.
-
-2) The rover was not able to avoid dead-ends and turn from boundaries very well, so I made some parameter adjustments to make
-it more sensitive and repsonsive to boundaries / walls. In particular, when steering, I boosted the steering angle to that of 20 times the 
-mean navigable polar angle (still clipping the result to [-15, 15]). Additionally, I made the following tweaks to the rover parameters:
-
+- Increased `throttle_set` from 0.2 to 2 for faster movement without much loss of performance
 - Increased `brake_set` from 10 to 50 to more quickly stop for obstacles
-
 - Increased `stop_forward` from 50 to 500 pixels to help make the rover stop more readily before it crashes into walls 
-
-- Decreased `max_vel` from 2.0 to 1.5 to have a better chance of stopping before obstacles
-
-3) One final detail, when stopping, my general approach was to gradually decrease the steering angle by 10% each 
-processing cycle so as to avoid chopping steering that can cause the rover to wobble.
-
-Next I will address each decision tree path one-by-one:
-1) `nav_angles` exist, mode="forward", `idealSteerAngle` > `forwardAngleThreshold`
-The idea of this condition is that first and foremost, the rover should keep turning if there is an obstacle directly in front.
-This case helps the rover from getting stuck on sharp edges. The brake is turned off, the throttle is not touched, and steering is performed.
-
-2) `nav_angles` exist, mode="forward", `elif len(Rover.nav_angles) < Rover.stop_forward`
-The idea here is that there is little navigable terrain ahead and its arrayed in a uniform fashion so we should enter 
-stop mode and turn. Throttle is turned off, brake is set, steering angle is decreased by 10%, and mode is set to 'stop'.
-
-3) `nav_angles` exist, mode="forward", `elif len(Rover.nav_angles) >= Rover.stop_forward`
-Here, with open terrain ahead, we either maintain max velocity or accelerate by setting the throttle. The rover keeps up
- boosted steering.
-
-4) `nav_angles` exist, mode="stop", `if Rover.vel > 0.2`
-This case is to continue stopping if rover is still moving in stop mode.
-
-5) `nav_angles` exist, mode="stop", `elif Rover.vel <= 0.2`, `if len(Rover.nav_angles) < Rover.go_forward or abs(idealSteerAngle) >= forwardAngleThreshold`
-This case represents situations where the rover is stopped there is not much navigale space or the space is sharply off to the side.
- In this case I want the rover to perform a 4-wheel turn.
+- Increase `go_forward` from 500 to 600 to ensure the robot does not stay stuck in a 4-wheel turn
+- Decreased `max_vel` from 2.0 to 1.75 to have a better chance of stopping before obstacles
  
-6) `nav_angles` exist, mode="stop", `elif len(Rover.nav_angles) >= Rover.go_forward and abs(idealSteerAngle) < forwardAngleThreshold`  
-Only if there's sufficient navigable pixels straight ahead do I want the rover to leave 'stop' mode and enter 'forward' mode.
-
-7) `nav_angles` do not exist
-I changed the response to keep steering but not throttle or break. I'd rather the rover slow down and keep avoid obstacles.
-
+ 
 #### 2. Launching in autonomous mode your rover can navigate and map autonomously.  Explain your results and how you might improve them in your writeup.  
 
 When running the simulator I used a screen resolution of 1280 x 720 and a graphics quality of 'Good'. The frames per second measure was typically around 36-37.
-I must note that I had some troubles with the python client disconnecting its communication from the Unity simulator. The 
-disconnection appears to occur after about 1.5 minutes of running the simulation. I sought help on Slack and with 'Live help'
-but was unable to ascertain the cause of the issue.
-
-For the limited trial lengths I had to work with I was able to test with I was able to achieve around 79% mapping fidelity 
+For the limited trial lengths I had to work with I was able to test with I was able to achieve around 77% mapping fidelity 
 and at least 40% mapped terrain. The rover was proficient at detecting rock samples. In general I felt the perception 
 algorithm was sufficient for the task, while the decision algorithm could add some additional cases to implement rock sample 
-retrieval. Currently, the rover will only approach rocks by chance. If I wanted to improve the rover I would think 
+retrieval. Currently, the rover will only approach rocks at very low speeds. If I wanted to improve the rover I would think 
 about how to add decision tree cases that move the robot toward the rock samples without hampering previously mentioned 
-performance measures.
+performance measures and getting the rover stuck on obstacles.
 
 Please see `output/roversim_recording.mp4` for a recording of the rover meeting the basic objectives.
 
 #### Attribution
 While developing this project I drew upon ideas presented in the `Rover Project Walkthrough Stereo` video. In particular
  I used the image mask technique for obstacle mapping and the rock filtering threshold values described therein.
-
