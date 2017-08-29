@@ -5,7 +5,6 @@ from io import BytesIO, StringIO
 import base64
 import time
 
-
 # Define a function to convert telemetry strings to float independent of decimal convention
 def convert_to_float(string_to_convert):
       if ',' in string_to_convert:
@@ -16,7 +15,7 @@ def convert_to_float(string_to_convert):
 
 def update_rover(Rover, data):
       # Initialize start time and sample positions
-      if Rover.start_time is None:
+      if Rover.start_time == None:
             Rover.start_time = time.time()
             Rover.total_time = 0
             samples_xpos = np.int_([convert_to_float(pos.strip()) for pos in data["samples_x"].split(';')])
@@ -28,9 +27,8 @@ def update_rover(Rover, data):
             tot_time = time.time() - Rover.start_time
             if np.isfinite(tot_time):
                   Rover.total_time = tot_time
-
       # Print out the fields in the telemetry data dictionary
-      # logger.info(list(data.keys()))
+      print(data.keys())
       # The current speed of the rover in m/s
       Rover.vel = convert_to_float(data["speed"])
       # The current position of the rover
@@ -52,21 +50,26 @@ def update_rover(Rover, data):
       # Update number of rocks collected
       Rover.samples_collected = Rover.samples_to_find - np.int(data["sample_count"])
 
-      # logger.info('speed =',Rover.vel, 'position =', Rover.pos, 'throttle =',
-      # Rover.throttle, 'steer_angle =', Rover.steer, 'near_sample:', Rover.near_sample,
-      # 'picking_up:', data["picking_up"], 'sending pickup:', Rover.send_pickup,
-      # 'total time:', Rover.total_time, 'samples remaining:', data["sample_count"],
-      # 'samples collected:', Rover.samples_collected)
+      print('speed =',Rover.vel, 'position =', Rover.pos, 'throttle =',
+      Rover.throttle, 'steer_angle =', Rover.steer, 'near_sample:', Rover.near_sample,
+      'picking_up:', data["picking_up"], 'sending pickup:', Rover.send_pickup,
+      'total time:', Rover.total_time, 'samples remaining:', data["sample_count"],
+      'samples collected:', Rover.samples_collected)
       # Get the current image from the center camera of the rover
       imgString = data["image"]
       image = Image.open(BytesIO(base64.b64decode(imgString)))
       Rover.img = np.asarray(image)
+
+      # clear state related to rock perception
+      Rover.rock_angles = None  # angles of rock pixels
+      Rover.rock_dists = None  # distances of rock pixels
 
       # Return updated Rover and separate image for optional saving
       return Rover, image
 
 # Define a function to create display output given worldmap results
 def create_output_images(Rover):
+
       # Create a scaled map for plotting and clean up obs/nav pixels a bit
       if np.max(Rover.worldmap[:,:,2]) > 0:
             nav_pix = Rover.worldmap[:,:,2] > 0
@@ -94,6 +97,7 @@ def create_output_images(Rover):
       # to confirm whether detections are real
       samples_located = 0
       if rock_world_pos[0].any():
+
             rock_size = 2
             for idx in range(len(Rover.samples_pos[0])):
                   test_rock_x = Rover.samples_pos[0][idx]
@@ -152,3 +156,6 @@ def create_output_images(Rover):
       encoded_string2 = base64.b64encode(buff.getvalue()).decode("utf-8")
 
       return encoded_string1, encoded_string2
+
+
+

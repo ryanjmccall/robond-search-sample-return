@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 
-
 # Identify pixels above the threshold
 # Threshold of RGB > 160 does a nice job of identifying ground pixels only
 def color_thresh(img, rgb_thresh=(160, 160, 160)):
@@ -86,6 +85,14 @@ def perspect_transform(img, src, dst):
     return warped, mask
 
 
+# lower bound on acceptable roll and pitch values
+CHOPPY_LOWER_BOUND = 0.5
+
+
+# upper bound on acceptable roll and pitch values
+CHOPPY_UPPER_BOUND = 359.5
+
+
 def perception_step(Rover):
     image = Rover.img
 
@@ -144,8 +151,6 @@ def perception_step(Rover):
         Rover.pitch = 0
 
     # ignore input when rover is unstable
-    CHOPPY_LOWER_BOUND = 0.5
-    CHOPPY_UPPER_BOUND = 359.5
     if (CHOPPY_LOWER_BOUND < Rover.roll < CHOPPY_UPPER_BOUND) or (CHOPPY_LOWER_BOUND < Rover.pitch < CHOPPY_UPPER_BOUND):
         # print("*** too choppy: pitch %s roll %s" % (Rover.pitch, Rover.roll))
         pass
